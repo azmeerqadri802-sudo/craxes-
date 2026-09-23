@@ -26,6 +26,14 @@ jobs:
       - name: Expand CARAXES source bundle
         run: Expand-Archive -Path CARAXES.zip -DestinationPath . -Force
 
+      - name: Download offline wake-word model
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path caraxes-os/models | Out-Null
+          Invoke-WebRequest -Uri https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip -OutFile vosk-model.zip
+          Expand-Archive -Path vosk-model.zip -DestinationPath caraxes-os/models -Force
+          Remove-Item vosk-model.zip -Force
+
       - name: Build frontend
         working-directory: caraxes-os/frontend
         run: |
@@ -42,8 +50,13 @@ jobs:
         run: >-
           pyinstaller --noconfirm --clean --onefile --windowed --name CARAXES
           --add-data "frontend/dist;frontend/dist"
+          --add-data "models/vosk-model-small-en-us-0.15;models/vosk-model-small-en-us-0.15"
           --collect-all webview --collect-all clr_loader
+          --collect-all vosk --collect-all sounddevice --collect-all numpy
+          --collect-all _sounddevice_data
           --hidden-import pythonnet
+          --hidden-import _sounddevice_data
+          --hidden-import scripts.wake_listener
           --hidden-import webview.platforms.edgechromium
           --hidden-import webview.platforms.winforms
           --hidden-import uvicorn.logging
