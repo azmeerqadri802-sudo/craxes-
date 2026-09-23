@@ -59,8 +59,9 @@ jobs:
           --add-data "backend/modules/adobe_uxp;backend/modules/adobe_uxp"
           --collect-all webview --collect-all clr_loader
           --collect-all vosk --collect-all sounddevice --collect-all numpy
-          --collect-all pycaw --collect-all comtypes --collect-all _sounddevice_data
+          --collect-all pycaw --collect-all comtypes --collect-all pyautogui --collect-all _sounddevice_data
           --hidden-import pythonnet --hidden-import _sounddevice_data
+          --hidden-import pyautogui._pyautogui_win
           --hidden-import scripts.wake_listener --hidden-import scripts.enable_autostart
           --hidden-import webview.platforms.edgechromium
           --hidden-import webview.platforms.winforms
