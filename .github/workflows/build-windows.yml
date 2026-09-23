@@ -2,6 +2,9 @@ name: Build CARAXES Desktop
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: read
@@ -24,6 +27,7 @@ jobs:
           node-version: "22.x"
 
       - name: Expand CARAXES source bundle
+        shell: pwsh
         run: Expand-Archive -Path CARAXES.zip -DestinationPath . -Force
 
       - name: Download offline wake-word model
@@ -51,18 +55,17 @@ jobs:
           pyinstaller --noconfirm --clean --onefile --windowed --name CARAXES
           --add-data "frontend/dist;frontend/dist"
           --add-data "models/vosk-model-small-en-us-0.15;models/vosk-model-small-en-us-0.15"
+          --add-data "backend/modules/adobe_hooks;backend/modules/adobe_hooks"
+          --add-data "backend/modules/adobe_uxp;backend/modules/adobe_uxp"
           --collect-all webview --collect-all clr_loader
           --collect-all vosk --collect-all sounddevice --collect-all numpy
-          --collect-all _sounddevice_data
-          --hidden-import pythonnet
-          --hidden-import _sounddevice_data
-          --hidden-import scripts.wake_listener
+          --collect-all pycaw --collect-all comtypes --collect-all _sounddevice_data
+          --hidden-import pythonnet --hidden-import _sounddevice_data
+          --hidden-import scripts.wake_listener --hidden-import scripts.enable_autostart
           --hidden-import webview.platforms.edgechromium
           --hidden-import webview.platforms.winforms
-          --hidden-import uvicorn.logging
-          --hidden-import uvicorn.loops.auto
-          --hidden-import uvicorn.protocols.http.auto
-          --hidden-import uvicorn.lifespan.on
+          --hidden-import uvicorn.logging --hidden-import uvicorn.loops.auto
+          --hidden-import uvicorn.protocols.http.auto --hidden-import uvicorn.lifespan.on
           desktop.py
 
       - name: Upload CARAXES executable
